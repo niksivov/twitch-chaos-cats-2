@@ -1,0 +1,10 @@
+# Godot
+.godot/
+
+# Тестовые записи и логи
+*.mp4
+match_log.txt
+
+# ОС
+Thumbs.db
+.DS_Store

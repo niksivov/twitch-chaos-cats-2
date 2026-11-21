@@ -1,0 +1,306 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/backgrounds/lobby_bg.webp" id="1_bg"]
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="2_font"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_card.gdshader" id="3_card"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_button.gdshader" id="4_button"]
+[ext_resource type="Script" path="res://scripts/neon_button.gd" id="5_button_script"]
+[ext_resource type="Script" path="res://scripts/neon_card.gd" id="6_card_script"]
+[ext_resource type="Script" path="res://scripts/timer_input.gd" id="7_timer_script"]
+[ext_resource type="Script" path="res://scripts/boosters_input.gd" id="8_boosters_script"]
+[ext_resource type="Script" path="res://scripts/lobby.gd" id="9_lobby_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_card"]
+shader = ExtResource("3_card")
+shader_parameter/rect_size = Vector2(700, 580)
+shader_parameter/inset = 44.0
+shader_parameter/radius = 26.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_button"]
+shader = ExtResource("4_button")
+shader_parameter/rect_size = Vector2(564, 82)
+shader_parameter/inset = 12.0
+shader_parameter/radius = 14.0
+
+[sub_resource type="Gradient" id="Gradient_divider"]
+offsets = PackedFloat32Array(0, 0.18, 0.5, 0.82, 1)
+colors = PackedColorArray(0.568627, 0.27451, 1, 0, 0.568627, 0.27451, 1, 0.15, 1, 0.35, 0.9, 0.9, 0.568627, 0.27451, 1, 0.15, 0.568627, 0.27451, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_divider"]
+gradient = SubResource("Gradient_divider")
+width = 540
+height = 2
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0470588, 0.027451, 0.0980392, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.568627, 0.27451, 1, 0.35)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_focus"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0705882, 0.0392157, 0.129412, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.686275, 0.415686, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.568627, 0.27451, 1, 0.45)
+shadow_size = 10
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_button"]
+
+[node name="Lobby" type="Node2D"]
+script = ExtResource("9_lobby_script")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer"]
+texture = ExtResource("1_bg")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Root" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LobbyWindow" type="Control" parent="UILayer/Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -290.0
+offset_right = 350.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/LobbyWindow"]
+material = SubResource("ShaderMaterial_card")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("6_card_script")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/Root/LobbyWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_top = 72
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 72
+
+[node name="Content" type="VBoxContainer" parent="UILayer/Root/LobbyWindow/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Title" type="RichTextLabel" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.054902, 0.0196078, 0.109804, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.55)
+theme_override_constants/outline_size = 4
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/normal_font = ExtResource("2_font")
+theme_override_font_sizes/normal_font_size = 44
+bbcode_enabled = true
+text = "[center]Настройка матча[/center]"
+fit_content = true
+scroll_active = false
+
+[node name="Divider" type="TextureRect" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_divider")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="TimerForm" type="VBoxContainer" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TimerLabel" type="Label" parent="UILayer/Root/LobbyWindow/Margin/Content/TimerForm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "Таймер хода (в секундах, от 5 до 600)"
+
+[node name="TimerInput" type="LineEdit" parent="UILayer/Root/LobbyWindow/Margin/Content/TimerForm"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_placeholder_color = Color(1, 1, 1, 0.55)
+theme_override_colors/caret_color = Color(0.901961, 0.352941, 0.901961, 1)
+theme_override_colors/selection_color = Color(0.690196, 0.415686, 1, 0.35)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_input")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
+script = ExtResource("7_timer_script")
+
+[node name="BoostersForm" type="VBoxContainer" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BoostersLabel" type="Label" parent="UILayer/Root/LobbyWindow/Margin/Content/BoostersForm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "Количество бустеров в магазине (от 1 до 8)"
+
+[node name="BoostersInput" type="LineEdit" parent="UILayer/Root/LobbyWindow/Margin/Content/BoostersForm"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_placeholder_color = Color(1, 1, 1, 0.55)
+theme_override_colors/caret_color = Color(0.901961, 0.352941, 0.901961, 1)
+theme_override_colors/selection_color = Color(0.690196, 0.415686, 1, 0.35)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_input")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
+placeholder_text = "1-8"
+max_length = 1
+script = ExtResource("8_boosters_script")
+
+[node name="PlayersLabel" type="Label" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "Напишите в чат !join. Игроки (0):"
+autowrap_mode = 3
+
+[node name="ButtonsRow" type="HBoxContainer" parent="UILayer/Root/LobbyWindow/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="BackButton" type="Button" parent="UILayer/Root/LobbyWindow/Margin/Content/ButtonsRow"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
+text = "Назад"
+script = ExtResource("5_button_script")
+
+[node name="BG" type="ColorRect" parent="UILayer/Root/LobbyWindow/Margin/Content/ButtonsRow/BackButton"]
+material = SubResource("ShaderMaterial_button")
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="PlayButton" type="Button" parent="UILayer/Root/LobbyWindow/Margin/Content/ButtonsRow"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
+text = "Играть"
+script = ExtResource("5_button_script")
+
+[node name="BG" type="ColorRect" parent="UILayer/Root/LobbyWindow/Margin/Content/ButtonsRow/PlayButton"]
+material = SubResource("ShaderMaterial_button")
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

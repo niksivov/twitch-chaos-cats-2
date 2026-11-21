@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/scissors.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "scissors"
+display_name = "Ножницы"
+description = "12%, если Ваша команда собрала Камень + Ножницы + Бумага"
+icon = ExtResource("2_icon")
+price = 2
+bonus_percent = 12
+colors = 4
+required_team_booster_ids = Array[String](["rock", "paper", "scissors"])
+returns_copy_to_pool = false

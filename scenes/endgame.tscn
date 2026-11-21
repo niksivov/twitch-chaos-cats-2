@@ -1,0 +1,594 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/backgrounds/endgame_bg.webp" id="1_bg"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_card.gdshader" id="2_card_shader"]
+[ext_resource type="Script" path="res://scripts/neon_card.gd" id="3_card_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="4_font"]
+[ext_resource type="Texture2D" path="res://assets/ui/coin.png" id="5_coin"]
+[ext_resource type="Texture2D" path="res://assets/ui/crown.png" id="6_crown"]
+[ext_resource type="Shader" path="res://assets/shaders/avatar_round.gdshader" id="7_avatar_shader"]
+[ext_resource type="Script" path="res://scripts/rounded_avatar.gd" id="8_avatar_script"]
+[ext_resource type="Texture2D" path="res://assets/avatars/default_avatar.png" id="9_default_avatar"]
+[ext_resource type="Script" path="res://scripts/endgame.gd" id="10_endgame"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_button.gdshader" id="11_button_shader"]
+[ext_resource type="Script" path="res://scripts/neon_button.gd" id="12_button_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_table"]
+shader = ExtResource("2_card_shader")
+shader_parameter/rect_size = Vector2(1200, 616)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 20.0
+shader_parameter/inner_line_strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_button"]
+shader = ExtResource("11_button_shader")
+shader_parameter/rect_size = Vector2(324, 82)
+shader_parameter/inset = 12.0
+shader_parameter/radius = 14.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_button"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avatar"]
+bg_color = Color(0.0313726, 0.0196078, 0.0627451, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.686275, 0.415686, 1, 0.65)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cell"]
+bg_color = Color(0.0313726, 0.0196078, 0.0627451, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.686275, 0.415686, 1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_avatar"]
+shader = ExtResource("7_avatar_shader")
+shader_parameter/rect_size = Vector2(206, 206)
+shader_parameter/radius = 16.0
+
+[node name="Endgame" type="Node2D"]
+script = ExtResource("10_endgame")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer"]
+texture = ExtResource("1_bg")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="Root" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Table" type="Control" parent="UILayer/Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = -40.0
+offset_bottom = -84.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Table"]
+material = SubResource("ShaderMaterial_table")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Table"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Columns" type="HBoxContainer" parent="UILayer/Root/Table/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 22
+
+[node name="WinnerColumn" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="WinnerTitle" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.78, 0.66, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+text = "ПОБЕДИТЕЛЬ"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinnerNickname" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="WinnerAvatarFrame" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn"]
+custom_minimum_size = Vector2(210, 210)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_avatar")
+
+[node name="WinnerAvatar" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerAvatarFrame"]
+material = SubResource("ShaderMaterial_avatar")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_default_avatar")
+expand_mode = 1
+stretch_mode = 6
+script = ExtResource("8_avatar_script")
+
+[node name="WinnerStats" type="HBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="WinsBox" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="WinsContent" type="HBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/WinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="WinsIcon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/WinsBox/WinsContent"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_crown")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WinsValue" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/WinsBox/WinsContent"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinsCaption" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/WinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.58, 0.86, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 11
+text = "ПОБЕДЫ"
+horizontal_alignment = 1
+
+[node name="CoinsBox" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="CoinsContent" type="HBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/CoinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CoinsIcon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/CoinsBox/CoinsContent"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("5_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinsValue" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/CoinsBox/CoinsContent"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CoinsCaption" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerStats/CoinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.58, 0.86, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 11
+text = "МОНЕТЫ"
+horizontal_alignment = 1
+
+[node name="WinnerBoosters" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="BoostersTitle" type="Label" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.78, 0.66, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 12
+text = "БУСТЕРЫ"
+horizontal_alignment = 1
+
+[node name="BoosterGrid" type="GridContainer" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="Cell1" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell2" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell3" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell4" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell5" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell5"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell6" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell6"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell7" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell7"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell8" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell8"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cell9" type="Panel" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid"]
+custom_minimum_size = Vector2(118, 59)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cell")
+
+[node name="Icon" type="TextureRect" parent="UILayer/Root/Table/Content/Columns/WinnerColumn/WinnerBoosters/BoosterGrid/Cell9"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Divider" type="ColorRect" parent="UILayer/Root/Table/Content/Columns"]
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+color = Color(0.686275, 0.415686, 1, 0.28)
+
+[node name="RankingColumn" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="RankingTitle" type="Label" parent="UILayer/Root/Table/Content/Columns/RankingColumn"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.78, 0.66, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+text = "ОСТАЛЬНЫЕ УЧАСТНИКИ"
+
+[node name="HeaderRow" type="HBoxContainer" parent="UILayer/Root/Table/Content/Columns/RankingColumn"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="PlayerHeader" type="Label" parent="UILayer/Root/Table/Content/Columns/RankingColumn/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.58, 0.86, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 12
+text = "УЧАСТНИК"
+
+[node name="WinsHeader" type="Label" parent="UILayer/Root/Table/Content/Columns/RankingColumn/HeaderRow"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.58, 0.86, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 12
+text = "ПОБЕДЫ"
+horizontal_alignment = 1
+
+[node name="CoinsHeader" type="Label" parent="UILayer/Root/Table/Content/Columns/RankingColumn/HeaderRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.58, 0.86, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 12
+text = "МОНЕТЫ"
+horizontal_alignment = 1
+
+[node name="Rows" type="VBoxContainer" parent="UILayer/Root/Table/Content/Columns/RankingColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="ContinueButton" type="Button" parent="UILayer/Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -72.0
+offset_right = 150.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
+text = "Продолжить"
+script = ExtResource("12_button_script")
+
+[node name="BG" type="ColorRect" parent="UILayer/Root/ContinueButton"]
+material = SubResource("ShaderMaterial_button")
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

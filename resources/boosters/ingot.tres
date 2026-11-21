@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/ingot.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "ingot"
+display_name = "Слиток"
+description = "+10 монет"
+icon = ExtResource("2_icon")
+price = 4
+coins_on_purchase = 10
+bonus_percent = 0
+colors = 8
+returns_copy_to_pool = false

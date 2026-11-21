@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/lighter.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "lighter"
+display_name = "Зажигалка"
+description = "25%, если у Вашей команды больше монет"
+icon = ExtResource("2_icon")
+price = 6
+bonus_percent = 25
+requires_team_coins_lead = true
+colors = 12
+returns_copy_to_pool = false

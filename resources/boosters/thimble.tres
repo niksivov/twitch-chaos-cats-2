@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/thimble.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "thimble"
+display_name = "Наперсток"
+description = "1 монета за каждую победу противников"
+icon = ExtResource("2_icon")
+price = 4
+coins_per_opponent_win_on_purchase = 1
+colors = 8
+returns_copy_to_pool = false

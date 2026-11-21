@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/tie.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "tie"
+display_name = "Бабочка"
+description = "От 0.3% до 0.7% за каждый зеленый бустер у Вас"
+icon = ExtResource("2_icon")
+price = 2
+bonus_percent = 0
+random_bonus = true
+bonus_min_percent = 0.3
+bonus_max_percent = 0.7
+bonus_per_owner_colors = 2
+colors = 3
+returns_copy_to_pool = false

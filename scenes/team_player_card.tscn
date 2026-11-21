@@ -1,0 +1,399 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="1_font"]
+[ext_resource type="Script" path="res://scripts/team_player_card.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/coin.png" id="3_coin"]
+[ext_resource type="Texture2D" path="res://assets/ui/crown.png" id="4_crown"]
+[ext_resource type="Shader" path="res://assets/shaders/active_scales.gdshader" id="5_scales_shader"]
+[ext_resource type="Script" path="res://scripts/active_scales.gd" id="6_scales_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.0588235, 0.0313726, 0.109804, 0.75)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avatar"]
+bg_color = Color(0.0313726, 0.0196078, 0.0627451, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.686275, 0.415686, 1, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avatar_active"]
+bg_color = Color(0.0313726, 0.0196078, 0.0627451, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 1, 0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_stat"]
+content_margin_left = 3.0
+content_margin_top = 2.0
+content_margin_right = 3.0
+content_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon"]
+bg_color = Color(0.0313726, 0.0196078, 0.0627451, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.686275, 0.415686, 1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scales"]
+shader = ExtResource("5_scales_shader")
+shader_parameter/rect_size = Vector2(128, 128)
+shader_parameter/inset = 4.0
+shader_parameter/border_width = 2.0
+shader_parameter/corner_radius = 10.0
+shader_parameter/segments = 30.0
+shader_parameter/flow_speed = 18.0
+
+[node name="TeamPlayerCard" type="PanelContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+script = ExtResource("2_script")
+active_avatar_style = SubResource("StyleBoxFlat_avatar_active")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Nickname" type="Label" parent="Content"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 12
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="AvatarFrame" type="Panel" parent="Content"]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_avatar")
+
+[node name="Avatar" type="TextureRect" parent="Content/AvatarFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ActiveScales" type="ColorRect" parent="Content/AvatarFrame"]
+material = SubResource("ShaderMaterial_scales")
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("6_scales_script")
+border_width = 2.0
+
+[node name="StatsRow" type="HBoxContainer" parent="Content"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="CoinsBox" type="PanelContainer" parent="Content/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_stat")
+
+[node name="CoinsContent" type="HBoxContainer" parent="Content/StatsRow/CoinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="CoinsIcon" type="TextureRect" parent="Content/StatsRow/CoinsBox/CoinsContent"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("3_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinsValue" type="Label" parent="Content/StatsRow/CoinsBox/CoinsContent"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 18
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinsBox" type="PanelContainer" parent="Content/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_stat")
+
+[node name="WinsContent" type="HBoxContainer" parent="Content/StatsRow/WinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="WinsIcon" type="TextureRect" parent="Content/StatsRow/WinsBox/WinsContent"]
+custom_minimum_size = Vector2(18, 14)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("4_crown")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WinsValue" type="Label" parent="Content/StatsRow/WinsBox/WinsContent"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 18
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoostersGrid" type="GridContainer" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="Icon1" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon2" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon3" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon4" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon5" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon5"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon6" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon6"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon7" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon7"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon8" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon8"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Icon9" type="Panel" parent="Content/BoostersGrid"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
+
+[node name="Texture" type="TextureRect" parent="Content/BoostersGrid/Icon9"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6

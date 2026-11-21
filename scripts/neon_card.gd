@@ -1,0 +1,13 @@
+extends ColorRect
+
+## Держит размер карточки в шейдере актуальным при изменении контрола.
+
+
+func _ready() -> void:
+	resized.connect(_update_rect_size)
+	_update_rect_size()
+
+
+func _update_rect_size() -> void:
+	if material is ShaderMaterial:
+		(material as ShaderMaterial).set_shader_parameter("rect_size", size)

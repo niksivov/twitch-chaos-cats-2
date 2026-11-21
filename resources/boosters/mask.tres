@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/mask.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "mask"
+display_name = "Маска"
+description = "Копирует случайный бустер за 6 монет"
+icon = ExtResource("2_icon")
+price = 2
+bonus_percent = 0
+copies_random_booster_of_price = 6

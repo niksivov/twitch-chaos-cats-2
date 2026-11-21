@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/chopsticks.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "chopsticks"
+display_name = "Палочки для еды"
+description = "1.5% за каждый зеленый бустер у союзников"
+icon = ExtResource("2_icon")
+price = 6
+bonus_percent = 0
+bonus_per_ally_colors = 2
+bonus_per_ally_color_percent = 1.5
+colors = 2

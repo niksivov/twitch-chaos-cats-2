@@ -1,0 +1,215 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="1_font"]
+[ext_resource type="Script" path="res://scripts/player_slot.gd" id="2_script"]
+[ext_resource type="StyleBox" path="res://assets/ui/player_slot_active.tres" id="3_active"]
+[ext_resource type="Shader" path="res://assets/shaders/avatar_round.gdshader" id="4_shader"]
+[ext_resource type="Script" path="res://scripts/rounded_avatar.gd" id="5_round_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/coin.png" id="6_coin"]
+[ext_resource type="Texture2D" path="res://assets/ui/crown.png" id="7_crown"]
+[ext_resource type="StyleBox" path="res://assets/ui/player_slot_team1.tres" id="8_team1"]
+[ext_resource type="StyleBox" path="res://assets/ui/player_slot_team2.tres" id="9_team2"]
+[ext_resource type="Shader" path="res://assets/shaders/active_scales.gdshader" id="10_scales_shader"]
+[ext_resource type="Script" path="res://scripts/active_scales.gd" id="11_scales_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.0588235, 0.0313726, 0.109804, 0.75)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.568627, 0.27451, 1, 0.6)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_avatar"]
+shader = ExtResource("4_shader")
+shader_parameter/rect_size = Vector2(113, 108)
+shader_parameter/radius = 8.0
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.03, 0.015, 0.06, 0.85, 0.03, 0.015, 0.06, 0.55, 0.03, 0.015, 0.06, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fade"]
+gradient = SubResource("Gradient_fade")
+width = 8
+height = 64
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scales"]
+shader = ExtResource("10_scales_shader")
+shader_parameter/rect_size = Vector2(127, 122)
+shader_parameter/inset = 4.0
+shader_parameter/border_width = 3.0
+shader_parameter/corner_radius = 10.0
+shader_parameter/segments = 32.0
+shader_parameter/flow_speed = 18.0
+
+[node name="PlayerSlot" type="PanelContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+script = ExtResource("2_script")
+normal_style = SubResource("StyleBoxFlat_slot")
+active_style = ExtResource("3_active")
+team1_style = ExtResource("8_team1")
+team2_style = ExtResource("9_team2")
+
+[node name="Card" type="Control" parent="."]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Avatar" type="TextureRect" parent="Card"]
+material = SubResource("ShaderMaterial_avatar")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+script = ExtResource("5_round_script")
+
+[node name="TopFade" type="TextureRect" parent="Card"]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 1
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_fade")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Caption" type="Label" parent="Card"]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 4.0
+offset_right = -8.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 1
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 13
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="BottomFade" type="TextureRect" parent="Card"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -40.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_fade")
+flip_v = true
+expand_mode = 1
+stretch_mode = 0
+
+[node name="StatsRow" type="HBoxContainer" parent="Card"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -24.0
+offset_right = -6.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CoinsBox" type="HBoxContainer" parent="Card/StatsRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="CoinsIcon" type="TextureRect" parent="Card/StatsRow/CoinsBox"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinsValue" type="Label" parent="Card/StatsRow/CoinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+vertical_alignment = 1
+
+[node name="WinsBox" type="HBoxContainer" parent="Card/StatsRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="WinsIcon" type="TextureRect" parent="Card/StatsRow/WinsBox"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("7_crown")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WinsValue" type="Label" parent="Card/StatsRow/WinsBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+vertical_alignment = 1
+
+[node name="ActiveScales" type="ColorRect" parent="Card"]
+material = SubResource("ShaderMaterial_scales")
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -7.0
+offset_top = -7.0
+offset_right = 7.0
+offset_bottom = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("11_scales_script")

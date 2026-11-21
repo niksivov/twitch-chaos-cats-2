@@ -1,0 +1,848 @@
+[gd_scene load_steps=37 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/backgrounds/game_bg.webp" id="1_bg"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_card.gdshader" id="2_card"]
+[ext_resource type="Script" path="res://scripts/neon_card.gd" id="3_card_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="4_font"]
+[ext_resource type="PackedScene" path="res://scenes/player_slot.tscn" id="5_slot"]
+[ext_resource type="StyleBox" path="res://assets/ui/player_slot_active.tres" id="6_active"]
+[ext_resource type="PackedScene" path="res://scenes/booster_slot.tscn" id="7_booster"]
+[ext_resource type="PackedScene" path="res://scenes/team_player_card.tscn" id="8_team_card"]
+[ext_resource type="Texture2D" path="res://assets/avatars/default_avatar.png" id="9_avatar"]
+[ext_resource type="Texture2D" path="res://assets/boosters/spur.png" id="10_spur"]
+[ext_resource type="PackedScene" path="res://scenes/purchase_popup.tscn" id="11_popup"]
+[ext_resource type="PackedScene" path="res://scenes/score_popup.tscn" id="12_score"]
+[ext_resource type="Script" path="res://scripts/team_score_frame.gd" id="13_team_score"]
+[ext_resource type="Resource" path="res://resources/players/player_1.tres" id="14_player_1"]
+[ext_resource type="Resource" path="res://resources/players/player_2.tres" id="15_player_2"]
+[ext_resource type="Resource" path="res://resources/players/player_3.tres" id="16_player_3"]
+[ext_resource type="Resource" path="res://resources/players/player_4.tres" id="17_player_4"]
+[ext_resource type="Resource" path="res://resources/players/player_5.tres" id="18_player_5"]
+[ext_resource type="Resource" path="res://resources/players/player_6.tres" id="19_player_6"]
+[ext_resource type="Resource" path="res://resources/players/player_7.tres" id="20_player_7"]
+[ext_resource type="Resource" path="res://resources/players/player_8.tres" id="21_player_8"]
+[ext_resource type="Script" path="res://scripts/game.gd" id="22_game"]
+[ext_resource type="PackedScene" path="res://scenes/round_results_popup.tscn" id="23_results"]
+[ext_resource type="PackedScene" path="res://scenes/round_start_popup.tscn" id="24_start"]
+[ext_resource type="PackedScene" path="res://scenes/purchase_flight.tscn" id="25_flight"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_window"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(256, 128)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/inner_line_strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_order"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(1000, 128)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/inner_line_strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shop"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(1264, 128)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/inner_line_strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_team1"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(628, 272)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/neon_a = Color(1, 0.18, 0.02, 1)
+shader_parameter/neon_b = Color(1, 0.32, 0.03, 1)
+shader_parameter/inner_line_strength = 0.0
+shader_parameter/orb_color = Color(0.5, 0.2, 0.03, 1)
+shader_parameter/sweep_color = Color(0.55, 0.22, 0.04, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_team2"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(628, 272)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/neon_a = Color(0, 0.8, 0.72, 1)
+shader_parameter/neon_b = Color(0.15, 0.95, 1, 1)
+shader_parameter/inner_line_strength = 0.0
+shader_parameter/orb_color = Color(0, 0.32, 0.3, 1)
+shader_parameter/sweep_color = Color(0.02, 0.4, 0.38, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bottom1"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(500, 128)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/neon_a = Color(1, 0.18, 0.02, 1)
+shader_parameter/neon_b = Color(1, 0.32, 0.03, 1)
+shader_parameter/inner_line_strength = 0.0
+shader_parameter/orb_color = Color(0.5, 0.2, 0.03, 1)
+shader_parameter/sweep_color = Color(0.55, 0.22, 0.04, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bottom2"]
+shader = ExtResource("2_card")
+shader_parameter/rect_size = Vector2(500, 128)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 14.0
+shader_parameter/neon_a = Color(0, 0.8, 0.72, 1)
+shader_parameter/neon_b = Color(0.15, 0.95, 1, 1)
+shader_parameter/inner_line_strength = 0.0
+shader_parameter/orb_color = Color(0, 0.32, 0.3, 1)
+shader_parameter/sweep_color = Color(0.02, 0.4, 0.38, 1)
+
+[sub_resource type="Gradient" id="Gradient_divider_line"]
+offsets = PackedFloat32Array(0, 0.18, 0.5, 0.82, 1)
+colors = PackedColorArray(0.72, 0.45, 1, 0, 0.72, 0.45, 1, 0.4, 1, 1, 1, 1, 0.72, 0.45, 1, 0.4, 0.72, 0.45, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_divider_line"]
+gradient = SubResource("Gradient_divider_line")
+width = 4
+height = 128
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Gradient" id="Gradient_divider_glow"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(0.78, 0.55, 1, 0.7, 0.62, 0.34, 1, 0.22, 0.62, 0.34, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_divider_glow"]
+gradient = SubResource("Gradient_divider_glow")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="Game" type="Node2D"]
+script = ExtResource("22_game")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer"]
+texture = ExtResource("1_bg")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="DarkOverlay" type="ColorRect" parent="BackgroundLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Root" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Zones" type="Control" parent="UILayer/Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopZone" type="Control" parent="UILayer/Root/Zones"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 0.2
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="InfoWindow" type="Control" parent="UILayer/Root/Zones/TopZone"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 264.0
+offset_bottom = 136.0
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/TopZone/InfoWindow"]
+material = SubResource("ShaderMaterial_window")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Zones/TopZone/InfoWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoContent" type="VBoxContainer" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="TopRow" type="HBoxContainer" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="RoundCell" type="HBoxContainer" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="RoundLabel" type="Label" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/RoundCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "РАУНД"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RoundNumber" type="Label" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/RoundCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Divider" type="Control" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow"]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Glow" type="TextureRect" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/Divider"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+modulate = Color(0.9, 0.72, 1, 0.85)
+texture = SubResource("GradientTexture2D_divider_glow")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Line" type="TextureRect" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/Divider"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_right = 1.0
+offset_top = 3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_divider_line")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="TimerCell" type="VBoxContainer" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="TimerLabel" type="Label" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/TimerCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TurnLabel" type="Label" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 13
+text = "ХОД ИГРОКА"
+horizontal_alignment = 1
+
+[node name="PlayerName" type="Label" parent="UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OrderWindow" type="Control" parent="UILayer/Root/Zones/TopZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 272.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/TopZone/OrderWindow"]
+material = SubResource("ShaderMaterial_order")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Zones/TopZone/OrderWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="OrderContent" type="VBoxContainer" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="SlotsRow" type="HBoxContainer" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Slot1" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("14_player_1")
+nickname = "Player1"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+theme_override_styles/panel = ExtResource("6_active")
+turn_number = 1
+active = true
+
+[node name="Slot2" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("15_player_2")
+nickname = "Player2"
+coins = 8
+turn_number = 2
+
+[node name="Slot3" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("16_player_3")
+nickname = "Player3"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+turn_number = 3
+
+[node name="Slot4" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("17_player_4")
+nickname = "Player4"
+coins = 8
+turn_number = 4
+
+[node name="Slot5" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("18_player_5")
+nickname = "Player5"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+turn_number = 5
+
+[node name="Slot6" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("19_player_6")
+nickname = "Player6"
+coins = 8
+turn_number = 6
+
+[node name="Slot7" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("20_player_7")
+nickname = "Player7"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+turn_number = 7
+
+[node name="Slot8" parent="UILayer/Root/Zones/TopZone/OrderWindow/Content/OrderContent/SlotsRow" instance=ExtResource("5_slot")]
+layout_mode = 2
+player = ExtResource("21_player_8")
+nickname = "Player8"
+coins = 8
+turn_number = 8
+
+[node name="SecondZone" type="Control" parent="UILayer/Root/Zones"]
+layout_mode = 1
+anchors_preset = 15
+anchor_top = 0.2
+anchor_right = 1.0
+anchor_bottom = 0.4
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ShopWindow" type="Control" parent="UILayer/Root/Zones/SecondZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/SecondZone/ShopWindow"]
+material = SubResource("ShaderMaterial_shop")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Zones/SecondZone/ShopWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="ShopContent" type="VBoxContainer" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="SlotsRow" type="HBoxContainer" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 14
+text = "Магазин Бустеров"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Booster1" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 1
+price = "6"
+description = "Все Ваши случайные эффекты дают максимальный эффект"
+colors = 1
+icon_texture = ExtResource("10_spur")
+
+[node name="Booster2" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 2
+
+[node name="Booster3" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 3
+
+[node name="Booster4" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 4
+
+[node name="Booster5" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 5
+
+[node name="Booster6" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 6
+
+[node name="Booster7" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 7
+
+[node name="Booster8" parent="UILayer/Root/Zones/SecondZone/ShopWindow/Content/ShopContent/SlotsRow" instance=ExtResource("7_booster")]
+layout_mode = 2
+booster_number = 8
+
+[node name="MiddleZone" type="Control" parent="UILayer/Root/Zones"]
+layout_mode = 1
+anchors_preset = 15
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 0.8
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Team1Window" type="Control" parent="UILayer/Root/Zones/MiddleZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/MiddleZone/Team1Window"]
+material = SubResource("ShaderMaterial_team1")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Zones/MiddleZone/Team1Window"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="CardsRow" type="HBoxContainer" parent="UILayer/Root/Zones/MiddleZone/Team1Window/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Player1" parent="UILayer/Root/Zones/MiddleZone/Team1Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("14_player_1")
+nickname = "Player1"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+booster_icons = Array[Texture2D]([ExtResource("10_spur")])
+
+[node name="Player2" parent="UILayer/Root/Zones/MiddleZone/Team1Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("15_player_2")
+nickname = "Player2"
+coins = 8
+
+[node name="Player3" parent="UILayer/Root/Zones/MiddleZone/Team1Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("16_player_3")
+nickname = "Player3"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+
+[node name="Player4" parent="UILayer/Root/Zones/MiddleZone/Team1Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("17_player_4")
+nickname = "Player4"
+coins = 8
+
+[node name="Team2Window" type="Control" parent="UILayer/Root/Zones/MiddleZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/MiddleZone/Team2Window"]
+material = SubResource("ShaderMaterial_team2")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Content" type="MarginContainer" parent="UILayer/Root/Zones/MiddleZone/Team2Window"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="CardsRow" type="HBoxContainer" parent="UILayer/Root/Zones/MiddleZone/Team2Window/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Player1" parent="UILayer/Root/Zones/MiddleZone/Team2Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("18_player_5")
+nickname = "Player5"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+
+[node name="Player2" parent="UILayer/Root/Zones/MiddleZone/Team2Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("19_player_6")
+nickname = "Player6"
+coins = 8
+
+[node name="Player3" parent="UILayer/Root/Zones/MiddleZone/Team2Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("20_player_7")
+nickname = "Player7"
+coins = 8
+avatar_texture = ExtResource("9_avatar")
+
+[node name="Player4" parent="UILayer/Root/Zones/MiddleZone/Team2Window/Content/CardsRow" instance=ExtResource("8_team_card")]
+layout_mode = 2
+player = ExtResource("21_player_8")
+nickname = "Player8"
+coins = 8
+
+[node name="BottomZone" type="Control" parent="UILayer/Root/Zones"]
+layout_mode = 1
+anchors_preset = 15
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Team1Frame" type="Control" parent="UILayer/Root/Zones/BottomZone"]
+layout_mode = 1
+anchor_right = 0.4
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("13_team_score")
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/BottomZone/Team1Frame"]
+material = SubResource("ShaderMaterial_bottom1")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Score" type="Label" parent="UILayer/Root/Zones/BottomZone/Team1Frame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 64
+text = "1 000 000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VersusLabel" type="Label" parent="UILayer/Root/Zones/BottomZone"]
+layout_mode = 1
+anchor_left = 0.4
+anchor_right = 0.6
+anchor_bottom = 1.0
+offset_top = 8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 40
+text = "против"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Team2Frame" type="Control" parent="UILayer/Root/Zones/BottomZone"]
+layout_mode = 1
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("13_team_score")
+
+[node name="NeonCard" type="ColorRect" parent="UILayer/Root/Zones/BottomZone/Team2Frame"]
+material = SubResource("ShaderMaterial_bottom2")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Score" type="Label" parent="UILayer/Root/Zones/BottomZone/Team2Frame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 64
+text = "1 000 000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PurchaseFlight" parent="UILayer/Root" instance=ExtResource("25_flight")]
+visible = false
+layout_mode = 1
+
+[node name="PurchasePopup" parent="UILayer/Root" instance=ExtResource("11_popup")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+player_avatar = ExtResource("9_avatar")
+player_nickname = "Player1"
+booster_name = "Шпора"
+booster_icon = ExtResource("10_spur")
+booster_description = "Все Ваши случайные эффекты дают максимальный эффект"
+
+[node name="ScorePopup" parent="UILayer/Root" instance=ExtResource("12_score")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+team_number = 1
+score_value = 1000000
+
+[node name="RoundResultsPopup" parent="UILayer/Root" instance=ExtResource("23_results")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RoundStartPopup" parent="UILayer/Root" instance=ExtResource("24_start")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

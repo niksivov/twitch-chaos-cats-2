@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/boosters/eraser.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "eraser"
+display_name = "Ластик"
+description = "25% если у Вас только один синий и один фиолетовый бустер"
+icon = ExtResource("2_icon")
+price = 6
+bonus_percent = 25
+required_owner_colors = 20
+required_owner_colors_min = 1
+required_owner_colors_max = 1
+colors = 20
+returns_copy_to_pool = false
