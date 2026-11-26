@@ -4,7 +4,6 @@ extends Node2D
 ## или демо-матч при прямом запуске сцены.
 
 const PLAYERS_COUNT := 8
-const BOOSTERS_DIR := "res://resources/boosters"
 const SHOP_SIZE := 8
 const TURN_DELAY := 2.0
 const DEFAULT_TURN_SECONDS := 60
@@ -22,6 +21,7 @@ const PURCHASE_LANDING_HOLD := 0.18
 const PURCHASE_FALLBACK_COLOR := Color(0.686, 0.416, 1.0, 1.0)
 const ENDGAME_SCENE := "res://scenes/endgame.tscn"
 const LOBBY_SCENE := "res://scenes/lobby.tscn"
+const DEFAULT_AVATAR: Texture2D = preload("res://assets/avatars/default_avatar.png")
 
 var _match := MatchState.new()
 var _autoplay_running := false
@@ -43,6 +43,17 @@ var _awaiting_command := false
 var _pending_command: Dictionary = {}
 ## Идёт возврат в лобби по команде стримера !reset.
 var _resetting := false
+
+## Онлайн-режим: состояние приходит с сервера, локального матча и чата нет.
+var _online := false
+var _online_players: Dictionary = {}
+var _online_catalog: Dictionary = {}
+var _online_timer := 0
+var _online_event_running := false
+var _online_event_queue: Array[Dictionary] = []
+var _online_draining := false
+var _online_scoring_active := false
+var _online_state_count := 0
 
 @onready var _round_number: Label = $UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/RoundCell/RoundNumber
 @onready var _timer_label: Label = $UILayer/Root/Zones/TopZone/InfoWindow/Content/InfoContent/TopRow/TimerCell/TimerLabel
@@ -90,6 +101,10 @@ var _resetting := false
 
 
 func _ready() -> void:
+	_online = NetworkClient.is_online()
+	if _online:
+		_setup_online()
+		return
 	_stop_after_round = _read_stop_after_round()
 	_players_count = _read_players_count()
 	_turn_delay = _read_turn_delay()
@@ -132,6 +147,14 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	_autoplay_running = false
 	_awaiting_command = false
+	if _online:
+		if NetworkClient.state_received.is_connected(_on_network_state):
+			NetworkClient.state_received.disconnect(_on_network_state)
+		if NetworkClient.event_received.is_connected(_on_network_event):
+			NetworkClient.event_received.disconnect(_on_network_event)
+		if NetworkClient.timer_tick.is_connected(_on_network_timer):
+			NetworkClient.timer_tick.disconnect(_on_network_timer)
+		return
 	if ChatService.chat_message.is_connected(_on_chat_message):
 		ChatService.chat_message.disconnect(_on_chat_message)
 	if ChatService.chat_disconnected.is_connected(_on_chat_disconnected):
@@ -219,7 +242,8 @@ func _take_turn(action: Dictionary) -> void:
 			slot = _match.find_random_affordable_slot()
 			turn_note = " (timeout)"
 		_:
-			slot = _match.find_first_affordable_slot()
+			# Демо-автопилот покупает случайный бустер, на который хватает монет.
+			slot = _match.find_random_affordable_slot()
 	if action_type == "skip" or slot < 0:
 		print("R%d T%d: %s skips (coins %d)%s" % [round_number, turn_number, player.nickname, player.coins, turn_note])
 		_match.skip_turn()
@@ -394,12 +418,20 @@ func _play_score_popup(result: Dictionary) -> void:
 	_purchase_popup.hide_popup()
 	var bonuses: Dictionary = result.get("booster_bonuses", {})
 	await _play_team_score(1, result, bonuses)
-	if not _autoplay_running or not is_inside_tree():
+	if not _sequence_active():
 		return
 	await _play_team_score(2, result, bonuses)
-	if not _autoplay_running or not is_inside_tree():
+	if not _sequence_active():
 		return
 	_score_popup.hide_popup()
+
+
+## Идёт ли ещё показ игровой последовательности: в локальной игре — автопилот,
+## в онлайн-режиме — сцена всё ещё на экране.
+func _sequence_active() -> bool:
+	if not is_inside_tree():
+		return false
+	return _online or _autoplay_running
 
 
 ## Применяет бонусы команды по одному: процент становится зелёным,
@@ -416,7 +448,7 @@ func _play_team_score(team: int, result: Dictionary, bonuses_by_player: Dictiona
 		_score_popup.set_correction(true, correction_percent, correction_multiplier)
 	# Даём увидеть исходное состояние: 1 000 000 и все проценты белые.
 	await get_tree().create_timer(SCORE_START_HOLD).timeout
-	if not _autoplay_running or not is_inside_tree():
+	if not _sequence_active():
 		return
 	var base := float(MatchState.START_SCORE)
 	var cumulative := 1.0
@@ -432,7 +464,7 @@ func _play_team_score(team: int, result: Dictionary, bonuses_by_player: Dictiona
 			_score_popup.mark_bonus_applied(column_index, booster_index)
 			var step_tween := _score_popup.animate_score(roundi(base * cumulative), SCORE_STEP_TIME)
 			await step_tween.finished
-			if not _autoplay_running or not is_inside_tree():
+			if not _sequence_active():
 				return
 	var animated_score := roundi(base * cumulative)
 	if has_correction:
@@ -441,7 +473,7 @@ func _play_team_score(team: int, result: Dictionary, bonuses_by_player: Dictiona
 		if corrected_score != animated_score:
 			var correction_tween := _score_popup.animate_score(corrected_score, SCORE_STEP_TIME)
 			await correction_tween.finished
-			if not _autoplay_running or not is_inside_tree():
+			if not _sequence_active():
 				return
 		animated_score = corrected_score
 	var target := int(result.get("team1_score" if team == 1 else "team2_score", MatchState.START_SCORE))
@@ -457,8 +489,14 @@ func _play_team_score(team: int, result: Dictionary, bonuses_by_player: Dictiona
 
 func _update_ui() -> void:
 	_round_number.text = str(max(1, _match.round_number))
-	# В матче из лобби таймер стартует с полной длительности хода.
-	if _from_lobby and _match.phase == MatchState.Phase.PURCHASE:
+	# В онлайн-режиме таймер приходит с сервера, в матче из лобби
+	# стартует с полной длительности хода.
+	if _online:
+		if _match.phase == MatchState.Phase.PURCHASE:
+			_timer_label.text = _format_timer(_online_timer)
+		else:
+			_timer_label.text = "00"
+	elif _from_lobby and _match.phase == MatchState.Phase.PURCHASE:
 		_timer_label.text = _format_timer(_turn_seconds)
 	else:
 		_timer_label.text = "00"
@@ -533,7 +571,11 @@ func _fill_team_cards(cards: Array, team_players: Array[PlayerData]) -> void:
 			card.booster_icons = _booster_icons_for(player)
 			card.booster_prices = _booster_prices_for(player)
 			card.highlighted_booster_index = _match.get_last_purchase_index(player)
-			card.active = player == _match.get_current_player()
+			var is_current := player == _match.get_current_player()
+			card.active = is_current
+			# В свой ход аватар цветной, у остальных ЧБ. Во время подсчёта
+			# очков активного игрока нет — все остаются цветными.
+			card.avatar_grayscale = _match.phase == MatchState.Phase.PURCHASE and not is_current
 		else:
 			card.clear()
 			card.visible = false
@@ -570,6 +612,279 @@ func _update_shop() -> void:
 func _update_scores() -> void:
 	_team1_score.score = int(_match.team_scores.get(1, MatchState.START_SCORE))
 	_team2_score.score = int(_match.team_scores.get(2, MatchState.START_SCORE))
+
+
+# --- Онлайн-режим ------------------------------------------------------------
+
+## Подключается к состоянию сервера и собирает каталог бустеров для карточек.
+func _setup_online() -> void:
+	for booster in _load_boosters():
+		_online_catalog[booster.id] = booster
+	NetworkClient.state_received.connect(_on_network_state)
+	NetworkClient.event_received.connect(_on_network_event)
+	NetworkClient.timer_tick.connect(_on_network_timer)
+	var state := NetworkClient.state
+	if state.is_empty():
+		return
+	_online_state_count += 1
+	_ingest_online_state(state)
+	_update_ui()
+	# Сервер присылает событие начала раунда сразу после состояния, но сцена
+	# игры создаётся на кадр позже и может его не застать. Первый раунд
+	# показываем сами, если матч только начался.
+	var match_data: Dictionary = state.get("match", {})
+	if int(match_data.get("round", 0)) == 1 \
+			and str(match_data.get("phase", "")) == "purchase" \
+			and int(match_data.get("timer", 0)) == 0:
+		_round_start_popup.show_round(1)
+
+
+## Обновляет зеркало состояния матча из данных сервера. Сами правила
+## считает сервер, клиент только показывает.
+func _ingest_online_state(state: Dictionary) -> void:
+	var players_in: Array = state.get("players", [])
+	var view_players: Array[PlayerData] = []
+	for player_data in players_in:
+		if typeof(player_data) != TYPE_DICTIONARY:
+			continue
+		var info: Dictionary = player_data
+		var player_id := str(info.get("id", ""))
+		if player_id.is_empty():
+			continue
+		var player := _online_players.get(player_id) as PlayerData
+		if player == null:
+			player = PlayerData.new()
+			_online_players[player_id] = player
+		player.twitch_login = str(info.get("login", ""))
+		player.nickname = str(info.get("nickname", ""))
+		player.team = int(info.get("team", 0))
+		player.coins = int(info.get("coins", 0))
+		# Победы в онлайн-режиме приходят готовым числом.
+		player.round_history.clear()
+		player.bonus_wins = int(info.get("wins", 0))
+		player.boosters.clear()
+		for booster_id in info.get("boosters", []):
+			player.boosters.append(str(booster_id))
+		player.booster_rounds.clear()
+		player.turn_number = int(info.get("turn", 0))
+		player.turn_excluded = bool(info.get("excluded", false))
+		player.nick_color = NetProtocol.color_from_hex(str(info.get("color", "")))
+		var avatar_index := int(info.get("avatar_index", 0))
+		player.avatar_index = avatar_index
+		player.avatar = PlayerAvatars.get_avatar(avatar_index - 1) if avatar_index > 0 else null
+		if player.avatar == null and bool(info.get("avatar", false)):
+			player.avatar = DEFAULT_AVATAR
+		view_players.append(player)
+	_match.players.assign(view_players)
+
+	var match_data: Dictionary = state.get("match", {})
+	if match_data.is_empty():
+		return
+	_match.catalog = _online_catalog
+	_match.round_number = int(match_data.get("round", 0))
+	_match.turn_index = int(match_data.get("turn_index", 0))
+	_match.round_resolved = bool(match_data.get("resolved", false))
+	_match.is_draw = bool(match_data.get("draw", false))
+	_match.team_scores = {
+		1: int(match_data.get("score1", MatchState.START_SCORE)),
+		2: int(match_data.get("score2", MatchState.START_SCORE)),
+	}
+	_online_timer = int(match_data.get("timer", 0))
+
+	var order: Array[PlayerData] = []
+	for player_id in match_data.get("order", []):
+		var ordered := _online_players.get(str(player_id)) as PlayerData
+		if ordered != null:
+			order.append(ordered)
+	_match.turn_order.assign(order)
+
+	_match.shop.clear()
+	# Пустой id — купленный слот: сохраняем позицию, чтобы номера карточек
+	# и команды чата !1–!8 совпадали с сервером.
+	for booster_id in match_data.get("shop", []):
+		_match.shop.append(_online_catalog.get(str(booster_id)) as BoosterData)
+
+	_match.last_purchase_player = _online_players.get(
+		str(match_data.get("last_player", "")), null
+	) as PlayerData
+	_match.last_purchase_index = int(match_data.get("last_index", -1))
+	_match.last_purchase_id = ""
+	_match.game_winner = _online_players.get(
+		str(match_data.get("winner", "")), null
+	) as PlayerData
+
+	match str(match_data.get("phase", "purchase")):
+		"scoring":
+			_match.phase = MatchState.Phase.SCORING
+		"game_over":
+			_match.phase = MatchState.Phase.GAME_OVER
+		_:
+			_match.phase = MatchState.Phase.PURCHASE
+
+
+func _on_network_state(state: Dictionary) -> void:
+	if str(state.get("phase", "")) != "game":
+		return
+	_online_state_count += 1
+	_ingest_online_state(state)
+	var match_data: Dictionary = state.get("match", {})
+	if str(match_data.get("phase", "")) == "scoring":
+		_online_scoring_active = true
+	if _online_scoring_active or _online_event_running or _online_draining:
+		return
+	_update_ui()
+
+
+func _on_network_timer(seconds: int) -> void:
+	_online_timer = maxi(0, seconds)
+	if not _online_scoring_active and not _online_event_running \
+			and _match.phase == MatchState.Phase.PURCHASE:
+		_timer_label.text = _format_timer(_online_timer)
+
+
+func _on_network_event(event_name: String, data: Dictionary) -> void:
+	_online_event_queue.append({"e": event_name, "d": data})
+	_drain_online_events()
+
+
+## События сервера проигрываются строго по одному, чтобы анимации не
+## накладывались друг на друга.
+func _drain_online_events() -> void:
+	if _online_draining:
+		return
+	_online_draining = true
+	while not _online_event_queue.is_empty() and is_inside_tree():
+		var entry: Dictionary = _online_event_queue.pop_front()
+		_online_event_running = true
+		await _handle_online_event(str(entry.get("e", "")), entry.get("d", {}))
+		_online_event_running = false
+	_online_draining = false
+	if is_inside_tree() and not _online_scoring_active:
+		_update_ui()
+
+
+func _handle_online_event(event_name: String, data: Dictionary) -> void:
+	match event_name:
+		"round_start":
+			await _handle_online_round_start(data)
+		"purchase":
+			await _handle_online_purchase(data)
+		"scoring":
+			await _handle_online_scoring(data)
+		"round_results":
+			await _handle_online_round_results(data)
+
+
+func _handle_online_round_start(data: Dictionary) -> void:
+	_online_scoring_active = false
+	_update_ui()
+	var round_number := int(data.get("round", _match.round_number))
+	if round_number <= 0:
+		return
+	_round_start_popup.show_round(round_number)
+	await _round_start_popup.display_finished
+
+
+func _handle_online_purchase(data: Dictionary) -> void:
+	var buyer := _online_players.get(str(data.get("buyer", "")), null) as PlayerData
+	if buyer == null:
+		return
+	var acquired_id := str(data.get("acquired", ""))
+	var acquired := _online_catalog.get(acquired_id) as BoosterData
+	if acquired == null:
+		return
+	var shop_index := int(data.get("shop_slot", -1))
+	var shop_slot = null
+	if shop_index >= 0 and shop_index < _shop_slots.size():
+		shop_slot = _shop_slots[shop_index]
+	var target_index := int(data.get("target_index", -1))
+	var buyer_card := _find_player_card(buyer)
+	var state_mark := _online_state_count
+	# До приземления карточка покупателя уже знает, какой бустер появится.
+	if buyer_card != null and target_index >= 0:
+		while buyer.boosters.size() <= target_index:
+			buyer.boosters.append("")
+		buyer.boosters[target_index] = acquired_id
+	await _play_purchase_animation(shop_slot, buyer_card, buyer, acquired, target_index)
+	if not is_inside_tree():
+		return
+	_purchase_popup.show_purchase(
+		buyer.avatar,
+		buyer.nickname,
+		buyer.nick_color,
+		acquired.display_name,
+		acquired.icon,
+		acquired.description,
+	)
+	await _purchase_popup.display_finished
+	if not is_inside_tree():
+		return
+	# Ждём состояние после покупки: оно приходит позже анимации и содержит
+	# очищенный слот магазина и ход следующего игрока.
+	if _online_state_count == state_mark:
+		await _wait_for_online_state(state_mark, 2.0)
+	if is_inside_tree():
+		_update_ui()
+
+
+func _wait_for_online_state(mark: int, timeout: float) -> void:
+	var left := timeout
+	while is_inside_tree() and _online_state_count == mark and left > 0.0:
+		await get_tree().create_timer(0.05).timeout
+		left -= 0.05
+
+
+func _handle_online_scoring(data: Dictionary) -> void:
+	_online_scoring_active = true
+	var bonuses := _online_bonuses_by_player(data.get("bonuses", {}))
+	var result := {
+		"team1_score": int(data.get("team1_score", MatchState.START_SCORE)),
+		"team2_score": int(data.get("team2_score", MatchState.START_SCORE)),
+		"draw": bool(data.get("draw", false)),
+		"correction_team": int(data.get("correction_team", 0)),
+		"correction_percent": float(data.get("correction_percent", 0.0)),
+		"correction_multiplier": float(data.get("correction_multiplier", 1.0)),
+		"booster_bonuses": bonuses,
+	}
+	await _play_score_popup(result)
+
+
+func _handle_online_round_results(data: Dictionary) -> void:
+	_online_scoring_active = false
+	var winners: Array[PlayerData] = []
+	for player_id in data.get("winners", []):
+		var player := _online_players.get(str(player_id), null) as PlayerData
+		if player != null:
+			winners.append(player)
+	var losers: Array[PlayerData] = []
+	for player_id in data.get("losers", []):
+		var player := _online_players.get(str(player_id), null) as PlayerData
+		if player != null:
+			losers.append(player)
+	var changes_in: Dictionary = data.get("changes", {})
+	var changes := {}
+	for player_id in changes_in.keys():
+		var player := _online_players.get(str(player_id), null) as PlayerData
+		if player == null:
+			continue
+		var change: Dictionary = changes_in[player_id]
+		changes[player] = change
+		player.coins = int(change.get("coins_after", player.coins))
+		player.round_history.clear()
+		player.bonus_wins = int(change.get("wins_after", player.wins))
+	_round_results_popup.show_results(winners, losers, changes)
+	await _round_results_popup.display_finished
+	if is_inside_tree():
+		_update_ui()
+
+
+func _online_bonuses_by_player(raw: Dictionary) -> Dictionary:
+	var bonuses := {}
+	for player_id in raw.keys():
+		var player := _online_players.get(str(player_id), null) as PlayerData
+		if player != null:
+			bonuses[player] = raw[player_id]
+	return bonuses
 
 
 ## Читает --stop-after-round=N из аргументов после «--».
@@ -611,24 +926,7 @@ func _load_players() -> Array[PlayerData]:
 
 
 func _load_boosters() -> Array[BoosterData]:
-	var result: Array[BoosterData] = []
-	var dir := DirAccess.open(BOOSTERS_DIR)
-	if dir == null:
-		push_error("Booster directory not found: %s" % BOOSTERS_DIR)
-		return result
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var resource := load(BOOSTERS_DIR + "/" + file_name) as BoosterData
-			if resource != null:
-				result.append(resource)
-			else:
-				push_warning("Not a BoosterData resource: %s" % file_name)
-		file_name = dir.get_next()
-	dir.list_dir_end()
-	result.sort_custom(func(a: BoosterData, b: BoosterData) -> bool: return a.id < b.id)
-	return result
+	return NetProtocol.load_all_boosters()
 
 
 ## Принимает команды из чата: !reset от стримера (логин совпадает с каналом)

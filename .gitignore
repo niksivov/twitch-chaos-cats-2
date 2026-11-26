@@ -1,3 +1,6 @@
+# Сборка Web-клиента
+build/
+
 # Godot
 .godot/
 

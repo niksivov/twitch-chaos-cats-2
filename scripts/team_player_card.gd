@@ -78,6 +78,13 @@ const BOOSTER_PRICE_COLORS := {
 ## Рамка аватара активного игрока.
 @export var active_avatar_style: StyleBox
 
+## Чёрно-белый аватар для неактивных игроков в командах.
+@export var avatar_grayscale: bool = false:
+	set(value):
+		avatar_grayscale = value
+		if is_node_ready():
+			_apply_avatar_grayscale()
+
 @onready var _nickname_label: Label = $Content/Nickname
 @onready var _avatar_frame: Panel = $Content/AvatarFrame
 @onready var _avatar: TextureRect = $Content/AvatarFrame/Avatar
@@ -114,6 +121,10 @@ var _booster_price_styles: Dictionary = {}
 
 
 func _ready() -> void:
+	# Материал шейдера общий у всех карточек: копируем, чтобы ЧБ включался
+	# только у нужной карточки.
+	if _avatar.material != null:
+		_avatar.material = _avatar.material.duplicate()
 	_normal_avatar_style = _avatar_frame.get_theme_stylebox("panel")
 	_normal_booster_frame_style = _booster_frames[0].get_theme_stylebox("panel")
 	_create_booster_price_styles()
@@ -126,6 +137,7 @@ func _ready() -> void:
 	_apply_player()
 	_apply_booster_icons()
 	_apply_active()
+	_apply_avatar_grayscale()
 
 
 func _apply_player() -> void:
@@ -143,6 +155,12 @@ func _apply_active() -> void:
 	var style: StyleBox = active_avatar_style if active and active_avatar_style != null else _normal_avatar_style
 	if style != null:
 		_avatar_frame.add_theme_stylebox_override("panel", style)
+
+
+func _apply_avatar_grayscale() -> void:
+	var mat := _avatar.material
+	if mat is ShaderMaterial:
+		(mat as ShaderMaterial).set_shader_parameter("grayscale", 1.0 if avatar_grayscale else 0.0)
 
 
 func _apply_booster_icons() -> void:
@@ -265,6 +283,7 @@ func clear() -> void:
 	avatar_texture = null
 	highlighted_booster_index = -1
 	active = false
+	avatar_grayscale = false
 	scale = Vector2.ONE
 	var empty_icons: Array[Texture2D] = []
 	booster_icons = empty_icons

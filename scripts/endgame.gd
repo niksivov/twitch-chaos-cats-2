@@ -48,13 +48,18 @@ const DEFAULT_SHOP_SIZE := 8
 var _normal_cell_style: StyleBox
 var _cell_price_styles: Dictionary = {}
 var _leaving := false
+var _online := false
 
 
 func _ready() -> void:
+	_online = NetworkClient.is_online()
 	_normal_cell_style = _winner_booster_frames[0].get_theme_stylebox("panel")
 	_create_cell_price_styles()
 	_continue_button.pressed.connect(_on_continue_pressed)
 	_schedule_auto_quit()
+	if _online:
+		_setup_online()
+		return
 	var state := MatchResults.match_state
 	if state == null:
 		push_warning("Endgame: результат матча не найден")
@@ -62,6 +67,49 @@ func _ready() -> void:
 	print("ENDGAME: winner=%s" % (state.game_winner.nickname if state.game_winner != null else "—"))
 	_show_winner(state)
 	_show_other_players(state)
+
+
+## В онлайн-режиме итоговая таблица собирается из последнего состояния сервера.
+func _setup_online() -> void:
+	var state := NetworkClient.state
+	if state.is_empty():
+		push_warning("Endgame: состояние сервера не найдено")
+		return
+	var catalog := {}
+	for booster in NetProtocol.load_all_boosters():
+		catalog[booster.id] = booster
+	var view := MatchState.new()
+	view.catalog = catalog
+	var players_by_id := {}
+	for player_data in state.get("players", []):
+		if typeof(player_data) != TYPE_DICTIONARY:
+			continue
+		var info: Dictionary = player_data
+		var player := PlayerData.new()
+		player.nickname = str(info.get("nickname", ""))
+		player.twitch_login = str(info.get("login", ""))
+		player.team = int(info.get("team", 0))
+		player.coins = int(info.get("coins", 0))
+		# Победы приходят готовым числом с сервера.
+		player.round_history.clear()
+		player.bonus_wins = int(info.get("wins", 0))
+		player.boosters.clear()
+		for booster_id in info.get("boosters", []):
+			player.boosters.append(str(booster_id))
+		player.turn_number = int(info.get("turn", 0))
+		player.nick_color = NetProtocol.color_from_hex(str(info.get("color", "")))
+		var avatar_index := int(info.get("avatar_index", 0))
+		player.avatar_index = avatar_index
+		player.avatar = PlayerAvatars.get_avatar(avatar_index - 1) if avatar_index > 0 else null
+		if player.avatar == null and bool(info.get("avatar", false)):
+			player.avatar = DEFAULT_AVATAR
+		view.players.append(player)
+		players_by_id[str(info.get("id", ""))] = player
+	var match_data: Dictionary = state.get("match", {})
+	view.game_winner = players_by_id.get(str(match_data.get("winner", ""))) as PlayerData
+	print("ENDGAME: winner=%s" % (view.game_winner.nickname if view.game_winner != null else "—"))
+	_show_winner(view)
+	_show_other_players(view)
 
 
 ## Для записи видео: завершает процесс через --endgame-hold=SECONDS.
@@ -86,6 +134,12 @@ func _on_continue_pressed() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	if _online:
+		_continue_button.disabled = true
+		if not NetworkClient.send_command({"c": "close"}):
+			_leaving = false
+			_continue_button.disabled = false
+		return
 	MatchResults.match_state = null
 	SessionConfig.players.clear()
 	SessionConfig.channel = ""

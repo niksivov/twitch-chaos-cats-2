@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="1_font"]
 [ext_resource type="Script" path="res://scripts/team_player_card.gd" id="2_script"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/crown.png" id="4_crown"]
 [ext_resource type="Shader" path="res://assets/shaders/active_scales.gdshader" id="5_scales_shader"]
 [ext_resource type="Script" path="res://scripts/active_scales.gd" id="6_scales_script"]
+[ext_resource type="Shader" path="res://assets/shaders/avatar_round.gdshader" id="7_avatar_shader"]
+[ext_resource type="Script" path="res://scripts/rounded_avatar.gd" id="8_round_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 content_margin_left = 5.0
@@ -65,6 +67,11 @@ shader_parameter/corner_radius = 10.0
 shader_parameter/segments = 30.0
 shader_parameter/flow_speed = 18.0
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_avatar"]
+shader = ExtResource("7_avatar_shader")
+shader_parameter/rect_size = Vector2(116, 116)
+shader_parameter/radius = 0.0
+
 [node name="TeamPlayerCard" type="PanelContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -100,6 +107,7 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_avatar")
 
 [node name="Avatar" type="TextureRect" parent="Content/AvatarFrame"]
+material = SubResource("ShaderMaterial_avatar")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -113,6 +121,7 @@ grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
+script = ExtResource("8_round_script")
 
 [node name="ActiveScales" type="ColorRect" parent="Content/AvatarFrame"]
 material = SubResource("ShaderMaterial_scales")

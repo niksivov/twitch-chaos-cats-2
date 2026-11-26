@@ -34,6 +34,8 @@ enum RoundResult {
 ## Уникальный цвет ника; задаётся при старте матча.
 @export var nick_color: Color = Color.WHITE
 @export var avatar: Texture2D
+## Номер аватара, выданного при подключении (1–8; 0 — без аватара).
+@export_range(0, 8, 1) var avatar_index: int = 0
 ## 0 — команда ещё не назначена, 1 или 2 — номер команды.
 @export_range(0, 2, 1) var team: int = 0
 @export var coins: int = 8

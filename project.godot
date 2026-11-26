@@ -17,6 +17,8 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 [autoload]
 
 ChatService="*res://scripts/twitch_chat.gd"
+NetworkClient="*res://scripts/net/network_client.gd"
+SceneRouter="*res://scripts/net/scene_router.gd"
 
 [display]
 
