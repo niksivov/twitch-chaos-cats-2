@@ -1,0 +1,73 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/booster_tooltip.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/neon_card.gdshader" id="2_shader"]
+[ext_resource type="Script" path="res://scripts/neon_card.gd" id="3_card_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/RussoOne-Regular.ttf" id="4_font"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tooltip"]
+shader = ExtResource("2_shader")
+shader_parameter/rect_size = Vector2(340, 120)
+shader_parameter/inset = 2.0
+shader_parameter/radius = 12.0
+shader_parameter/fill_top = Color(0.0703125, 0.0351563, 0.135, 1)
+shader_parameter/fill_bottom = Color(0.0292969, 0.0146484, 0.0644531, 1)
+shader_parameter/inner_line_strength = 0.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
+
+[node name="BoosterTooltip" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Card" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 340.0
+offset_bottom = 120.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card")
+
+[node name="NeonCard" type="ColorRect" parent="Card"]
+material = SubResource("ShaderMaterial_tooltip")
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_card_script")
+
+[node name="Margin" type="MarginContainer" parent="Card"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="Card/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Card/Margin/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+text = "Шпора"
+
+[node name="DescriptionLabel" type="Label" parent="Card/Margin/Content"]
+custom_minimum_size = Vector2(308, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 12
+text = "Все Ваши случайные эффекты дают максимальный эффект"
+autowrap_mode = 3

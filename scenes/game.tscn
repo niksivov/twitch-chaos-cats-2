@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/backgrounds/game_bg.webp" id="1_bg"]
 [ext_resource type="Shader" path="res://assets/shaders/neon_card.gdshader" id="2_card"]
@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://scenes/round_results_popup.tscn" id="23_results"]
 [ext_resource type="PackedScene" path="res://scenes/round_start_popup.tscn" id="24_start"]
 [ext_resource type="PackedScene" path="res://scenes/purchase_flight.tscn" id="25_flight"]
+[ext_resource type="PackedScene" path="res://scenes/booster_tooltip.tscn" id="26_tooltip"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_window"]
 shader = ExtResource("2_card")
@@ -838,6 +839,16 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="RoundStartPopup" parent="UILayer/Root" instance=ExtResource("24_start")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BoosterTooltip" parent="UILayer/Root" instance=ExtResource("26_tooltip")]
 visible = false
 layout_mode = 1
 anchors_preset = 15

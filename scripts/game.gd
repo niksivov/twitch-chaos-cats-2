@@ -98,10 +98,12 @@ var _online_state_count := 0
 @onready var _score_popup: ScorePopup = $UILayer/Root/ScorePopup as ScorePopup
 @onready var _round_results_popup: RoundResultsPopup = $UILayer/Root/RoundResultsPopup as RoundResultsPopup
 @onready var _round_start_popup: RoundStartPopup = $UILayer/Root/RoundStartPopup as RoundStartPopup
+@onready var _booster_tooltip: BoosterTooltip = $UILayer/Root/BoosterTooltip as BoosterTooltip
 
 
 func _ready() -> void:
 	_online = NetworkClient.is_online()
+	_connect_booster_tooltips()
 	if _online:
 		_setup_online()
 		return
@@ -292,6 +294,7 @@ func _play_purchase_animation(
 ) -> void:
 	if shop_slot == null or acquired == null:
 		return
+	_booster_tooltip.hide_tooltip()
 	var from_rect := shop_slot.get_icon_global_rect()
 	var has_cell := target_index >= 0 and buyer_card != null
 	var to_rect := from_rect
@@ -337,9 +340,39 @@ func _prepare_buyer_card(card: TeamPlayerCard, player: PlayerData, acquired_inde
 	card.player = player
 	card.booster_icons = _booster_icons_for(player)
 	card.booster_prices = _booster_prices_for(player)
+	card.booster_names = _booster_names_for(player)
+	card.booster_descriptions = _booster_descriptions_for(player)
 	card.highlighted_booster_index = -1
 	if acquired_index >= 0:
 		card.hide_booster_for_purchase(acquired_index)
+
+
+## Подключает наведение на бустеры всех карточек команд к окну подсказки.
+func _connect_booster_tooltips() -> void:
+	for card in _team1_cards:
+		card.booster_hovered.connect(_on_booster_hovered)
+		card.booster_unhovered.connect(_on_booster_unhovered)
+	for card in _team2_cards:
+		card.booster_hovered.connect(_on_booster_hovered)
+		card.booster_unhovered.connect(_on_booster_unhovered)
+
+
+func _on_booster_hovered(anchor_rect: Rect2, booster_name: String, description: String) -> void:
+	if not _can_show_booster_tooltip():
+		return
+	_booster_tooltip.show_booster(booster_name, description, anchor_rect)
+
+
+func _on_booster_unhovered() -> void:
+	_booster_tooltip.hide_tooltip()
+
+
+## Подсказка не показывается поверх поп-апов и во время анимации покупки.
+func _can_show_booster_tooltip() -> bool:
+	if _online_event_running or _purchase_flight.visible:
+		return false
+	return not (_purchase_popup.visible or _score_popup.visible \
+		or _round_results_popup.visible or _round_start_popup.visible)
 
 
 ## Находит карточку игрока в окнах команд по текущему составу.
@@ -382,6 +415,7 @@ func _resolve_round() -> void:
 	var losers: Array[PlayerData] = []
 	losers.assign(result.get("losers", []))
 	var changes: Dictionary = result.get("player_changes", {})
+	_booster_tooltip.hide_tooltip()
 	_round_results_popup.show_results(winners, losers, changes)
 	await _round_results_popup.display_finished
 	if not _autoplay_running or not is_inside_tree():
@@ -409,12 +443,14 @@ func _resolve_round() -> void:
 
 ## Показывает поп-ап «Раунд N» и ждёт его закрытия.
 func _show_round_start() -> void:
+	_booster_tooltip.hide_tooltip()
 	_round_start_popup.show_round(_match.round_number)
 	await _round_start_popup.display_finished
 
 
 ## Показывает поп-ап подсчёта сначала для команды 1, затем для команды 2.
 func _play_score_popup(result: Dictionary) -> void:
+	_booster_tooltip.hide_tooltip()
 	_purchase_popup.hide_popup()
 	var bonuses: Dictionary = result.get("booster_bonuses", {})
 	await _play_team_score(1, result, bonuses)
@@ -570,6 +606,8 @@ func _fill_team_cards(cards: Array, team_players: Array[PlayerData]) -> void:
 			card.player = player
 			card.booster_icons = _booster_icons_for(player)
 			card.booster_prices = _booster_prices_for(player)
+			card.booster_names = _booster_names_for(player)
+			card.booster_descriptions = _booster_descriptions_for(player)
 			card.highlighted_booster_index = _match.get_last_purchase_index(player)
 			var is_current := player == _match.get_current_player()
 			card.active = is_current
@@ -595,6 +633,22 @@ func _booster_prices_for(player: PlayerData) -> Array[int]:
 		var data: BoosterData = _match.catalog.get(booster_id)
 		prices.append(data.price if data != null else 0)
 	return prices
+
+
+func _booster_names_for(player: PlayerData) -> Array[String]:
+	var names: Array[String] = []
+	for booster_id in player.boosters:
+		var data: BoosterData = _match.catalog.get(booster_id)
+		names.append(data.display_name if data != null else "")
+	return names
+
+
+func _booster_descriptions_for(player: PlayerData) -> Array[String]:
+	var descriptions: Array[String] = []
+	for booster_id in player.boosters:
+		var data: BoosterData = _match.catalog.get(booster_id)
+		descriptions.append(data.description if data != null else "")
+	return descriptions
 
 
 func _update_shop() -> void:
@@ -781,6 +835,7 @@ func _handle_online_round_start(data: Dictionary) -> void:
 	var round_number := int(data.get("round", _match.round_number))
 	if round_number <= 0:
 		return
+	_booster_tooltip.hide_tooltip()
 	_round_start_popup.show_round(round_number)
 	await _round_start_popup.display_finished
 
@@ -872,6 +927,7 @@ func _handle_online_round_results(data: Dictionary) -> void:
 		player.coins = int(change.get("coins_after", player.coins))
 		player.round_history.clear()
 		player.bonus_wins = int(change.get("wins_after", player.wins))
+	_booster_tooltip.hide_tooltip()
 	_round_results_popup.show_results(winners, losers, changes)
 	await _round_results_popup.display_finished
 	if is_inside_tree():

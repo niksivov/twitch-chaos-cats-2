@@ -3,6 +3,10 @@ extends PanelContainer
 
 ## Карточка игрока внутри окна команды.
 
+## Наведение на заполненную ячейку бустера: прямоугольник ячейки, название и описание.
+signal booster_hovered(anchor_rect: Rect2, booster_name: String, description: String)
+signal booster_unhovered()
+
 ## Цвета рамок заполненных ячеек бустеров по цене.
 const BOOSTER_PRICE_COLORS := {
 	2: Color(0.804, 0.498, 0.196, 1.0),
@@ -61,6 +65,20 @@ const BOOSTER_PRICE_COLORS := {
 		if is_node_ready():
 			_apply_booster_frames()
 
+## Названия бустеров по порядку ячеек; пустая строка — пустая ячейка.
+@export var booster_names: Array[String] = []
+
+## Описания бустеров по порядку ячеек; пустая строка — пустая ячейка.
+@export var booster_descriptions: Array[String] = []:
+	set(value):
+		if booster_descriptions == value:
+			return
+		booster_descriptions = value
+		# Данные ячеек изменились — старая подсказка больше не актуальна.
+		if is_node_ready() and _hovered_index >= 0:
+			_hovered_index = -1
+			booster_unhovered.emit()
+
 ## Индекс бустера, который нужно обвести зелёной рамкой; -1 — не подсвечивать.
 @export var highlighted_booster_index: int = -1:
 	set(value):
@@ -118,6 +136,7 @@ var _booster_highlights: Array[Panel] = []
 var _normal_avatar_style: StyleBox
 var _normal_booster_frame_style: StyleBox
 var _booster_price_styles: Dictionary = {}
+var _hovered_index := -1
 
 
 func _ready() -> void:
@@ -134,6 +153,7 @@ func _ready() -> void:
 	_coins_label.text = str(coins)
 	_avatar.texture = avatar_texture
 	_create_booster_highlights()
+	_setup_booster_hover()
 	_apply_player()
 	_apply_booster_icons()
 	_apply_active()
@@ -212,6 +232,41 @@ func _create_booster_highlights() -> void:
 		_booster_highlights.append(overlay)
 
 
+## Включает наведение на ячейки бустеров и сообщает наружу их данные.
+func _setup_booster_hover() -> void:
+	for index in _booster_frames.size():
+		var frame := _booster_frames[index]
+		frame.mouse_filter = Control.MOUSE_FILTER_STOP
+		frame.mouse_entered.connect(_on_booster_mouse_entered.bind(index))
+		frame.mouse_exited.connect(_on_booster_mouse_exited.bind(index))
+
+
+func _on_booster_mouse_entered(index: int) -> void:
+	_hovered_index = index
+	if index >= booster_descriptions.size():
+		booster_unhovered.emit()
+		return
+	var description := booster_descriptions[index]
+	if description.is_empty():
+		booster_unhovered.emit()
+		return
+	var booster_name := booster_names[index] if index < booster_names.size() else ""
+	booster_hovered.emit(_booster_frames[index].get_global_rect(), booster_name, description)
+
+
+func _on_booster_mouse_exited(index: int) -> void:
+	if _hovered_index != index:
+		return
+	_hovered_index = -1
+	call_deferred("_emit_unhover_if_idle")
+
+
+## Скрывает подсказку, только если курсор не перешёл сразу на соседнюю ячейку.
+func _emit_unhover_if_idle() -> void:
+	if _hovered_index < 0:
+		booster_unhovered.emit()
+
+
 ## Подсвечивает ярко-зелёной рамкой указанный бустер (последний купленный
 ## в матче среди всех игроков).
 func _apply_booster_highlight() -> void:
@@ -285,6 +340,9 @@ func clear() -> void:
 	active = false
 	avatar_grayscale = false
 	scale = Vector2.ONE
+	if _hovered_index >= 0:
+		_hovered_index = -1
+		booster_unhovered.emit()
 	var empty_icons: Array[Texture2D] = []
 	booster_icons = empty_icons
 	var empty_prices: Array[int] = []
