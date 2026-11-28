@@ -1,6 +1,6 @@
 extends LineEdit
 
-## Поле максимального количества игроков: только цифры и диапазон 3–8.
+## Поле максимального количества игроков: только цифры и диапазон 2–8.
 
 
 func _ready() -> void:
@@ -11,7 +11,7 @@ func _ready() -> void:
 func _on_text_changed(new_text: String) -> void:
 	var filtered := ""
 	for ch in new_text:
-		if ch >= "3" and ch <= "8":
+		if ch >= "2" and ch <= "8":
 			filtered += ch
 	if filtered.length() > 1:
 		filtered = filtered.substr(0, 1)
@@ -25,4 +25,4 @@ func _on_focus_exited() -> void:
 	if text.is_empty():
 		text = "8"
 		return
-	text = str(clampi(int(text), 3, 8))
+	text = str(clampi(int(text), 2, 8))

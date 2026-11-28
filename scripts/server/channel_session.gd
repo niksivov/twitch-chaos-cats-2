@@ -10,7 +10,7 @@ signal event_fired(event_name: String, data: Dictionary)
 signal notice(message: String)
 signal closed
 
-const MIN_PLAYERS := 3
+const MIN_PLAYERS := 2
 const MIN_TURN_SECONDS := 5
 const MAX_TURN_SECONDS := 600
 const MIN_SHOP_SIZE := 1

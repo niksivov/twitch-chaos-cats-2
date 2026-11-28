@@ -895,11 +895,11 @@ func _read_stop_after_round() -> int:
 	return 0
 
 
-## Читает --players=N из аргументов после «--» (от 3 до 8).
+## Читает --players=N из аргументов после «--» (от 2 до 8).
 func _read_players_count() -> int:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--players="):
-			return clampi(int(arg.get_slice("=", 1)), 3, PLAYERS_COUNT)
+			return clampi(int(arg.get_slice("=", 1)), 2, PLAYERS_COUNT)
 	return PLAYERS_COUNT
 
 

@@ -149,7 +149,7 @@ func _handle_hello(peer_id: int, message: Dictionary) -> void:
 		session = SESSION_SCRIPT.new()
 		session.name = "Session_%s" % channel
 		session.channel = channel
-		session.max_players = clampi(int(message.get("max_players", 8)), 3, 8)
+		session.max_players = clampi(int(message.get("max_players", 8)), 2, 8)
 		session.boosters = _boosters
 		session.debug_enabled = _debug
 		session.state_changed.connect(_on_session_state.bind(session))

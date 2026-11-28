@@ -197,7 +197,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 20
-text = "Максимальное количество игроков (от 3 до 8)"
+text = "Максимальное количество игроков (от 2 до 8)"
 
 [node name="PlayersInput" type="LineEdit" parent="UILayer/Root/RegistrationWindow/Margin/Content/Form"]
 custom_minimum_size = Vector2(0, 56)
@@ -209,7 +209,7 @@ theme_override_colors/selection_color = Color(0.690196, 0.415686, 1, 0.35)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
-placeholder_text = "3-8"
+placeholder_text = "2-8"
 max_length = 1
 script = ExtResource("7_players_script")
 

@@ -61,7 +61,7 @@ func join_channel(channel: String, max_players: int) -> void:
 		_fail("Укажите название канала Twitch.")
 		return
 	_channel = normalized
-	_max_players = clampi(max_players, 3, 8)
+	_max_players = clampi(max_players, 2, 8)
 	_url = _resolve_url()
 	_manual_stop = false
 	_open_socket()

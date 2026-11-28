@@ -75,7 +75,7 @@ func _auto_join_from_args() -> void:
 		return
 	_channel_input.text = channel
 	if max_players > 0:
-		_players_input.text = str(clampi(max_players, 3, 8))
+		_players_input.text = str(clampi(max_players, 2, 8))
 	_on_next_pressed.call_deferred()
 
 
@@ -111,7 +111,7 @@ func _apply_inputs() -> String:
 		return "Канал: 4-25 символов, только латинские буквы, цифры и _."
 	var max_players := DEFAULT_MAX_PLAYERS
 	if _players_input.text.is_valid_int():
-		max_players = clampi(int(_players_input.text), 3, 8)
+		max_players = clampi(int(_players_input.text), 2, 8)
 	SessionConfig.channel = channel
 	SessionConfig.max_players = max_players
 	SessionConfig.players.clear()
