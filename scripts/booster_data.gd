@@ -6,7 +6,16 @@ extends Resource
 @export var id: String = ""
 @export var display_name: String = ""
 @export_multiline var description: String = ""
-@export var icon: Texture2D
+## Путь к иконке. Текстура загружается лениво: серверу она не нужна,
+## а клиент читает её только когда карточка действительно показывается.
+@export var icon_path: String = ""
+var _icon_cache: Texture2D = null
+
+var icon: Texture2D:
+	get:
+		if _icon_cache == null and not icon_path.is_empty():
+			_icon_cache = load(icon_path) as Texture2D
+		return _icon_cache
 @export var price: int = 0
 ## Сколько монет получает покупатель сразу при покупке.
 @export var coins_on_purchase: int = 0

@@ -1,0 +1,9 @@
+.git
+.gitignore
+.godot
+build
+videos
+*.mp4
+match_log.txt
+Thumbs.db
+.DS_Store

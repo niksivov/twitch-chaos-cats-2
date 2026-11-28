@@ -13,6 +13,7 @@ signal session_closed
 signal error(message: String)
 
 const RECONNECT_DELAY := 3.0
+const KEEPALIVE_INTERVAL := 30.0
 
 var state: Dictionary = {}
 var connected := false
@@ -25,6 +26,7 @@ var _max_players := 8
 var _manual_stop := true
 var _hello_sent := false
 var _reconnect_left := -1.0
+var _keepalive_left := KEEPALIVE_INTERVAL
 var _auto_join_consumed := false
 
 
@@ -82,6 +84,7 @@ func disconnect_from_server() -> void:
 	connected = false
 	_hello_sent = false
 	_reconnect_left = -1.0
+	_keepalive_left = KEEPALIVE_INTERVAL
 	state.clear()
 	if _socket.get_ready_state() != WebSocketPeer.STATE_CLOSED:
 		_socket.close()
@@ -105,6 +108,10 @@ func _process(delta: float) -> void:
 				"channel": _channel,
 				"max_players": _max_players,
 			})
+		_keepalive_left -= delta
+		if _keepalive_left <= 0.0:
+			_keepalive_left = KEEPALIVE_INTERVAL
+			_send({"t": "ping"})
 		while _socket.get_available_packet_count() > 0:
 			var packet := _socket.get_packet()
 			# Служебный четырёхбайтовый пакет WebSocketMultiplayerPeer
@@ -126,6 +133,7 @@ func _open_socket() -> void:
 		_socket.close()
 	_socket = WebSocketPeer.new()
 	_hello_sent = false
+	_keepalive_left = KEEPALIVE_INTERVAL
 	var error := _socket.connect_to_url(_url)
 	if error != OK:
 		_fail("Не удалось подключиться к серверу.")
@@ -177,6 +185,7 @@ func _handle_closed() -> void:
 	connected = false
 	_hello_sent = false
 	_reconnect_left = -1.0
+	_keepalive_left = KEEPALIVE_INTERVAL
 	state.clear()
 	if _socket.get_ready_state() != WebSocketPeer.STATE_CLOSED:
 		_socket.close()

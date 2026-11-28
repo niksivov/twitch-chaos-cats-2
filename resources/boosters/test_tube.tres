@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="BoosterData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/boosters/test_tube.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
 id = "test_tube"
 display_name = "Пробирка"
 description = "24%, но -4% за каждый фиолетовый бустер в игре"
-icon = ExtResource("2_icon")
+icon_path = "res://assets/boosters/test_tube.png"
 price = 4
 bonus_percent = 24.0
 bonus_per_purple_booster_in_game = -4.0

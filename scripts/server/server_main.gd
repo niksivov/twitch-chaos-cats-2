@@ -5,17 +5,21 @@ extends Node
 ## Запуск: godot --headless --path . res://scenes/server.tscn -- --port=8080
 
 const DEFAULT_PORT := 8080
+const DEFAULT_SESSION_IDLE_TIMEOUT := 600.0
 const SESSION_SCRIPT := preload("res://scripts/server/channel_session.gd")
 
 var _socket := WebSocketMultiplayerPeer.new()
 var _sessions: Dictionary = {}
 var _clients: Dictionary = {}
+var _empty_since: Dictionary = {}
+var _session_idle_timeout := DEFAULT_SESSION_IDLE_TIMEOUT
 var _boosters: Array[BoosterData] = []
 var _debug := false
 
 
 func _ready() -> void:
 	_debug = "--debug" in OS.get_cmdline_user_args()
+	_session_idle_timeout = _read_session_idle_timeout()
 	_boosters = NetProtocol.load_all_boosters()
 	if _boosters.is_empty():
 		push_error("Сервер: не удалось загрузить бустеры")
@@ -29,13 +33,14 @@ func _ready() -> void:
 		return
 	_socket.peer_connected.connect(_on_peer_connected)
 	_socket.peer_disconnected.connect(_on_peer_disconnected)
-	print("SERVER READY: ws://0.0.0.0:%d, бустеров %d, debug=%s" % [
+	print("SERVER READY: ws://0.0.0.0:%d, бустеров %d, debug=%s, idle=%s" % [
 		port, _boosters.size(), str(_debug),
+		("%.0f с" % _session_idle_timeout) if _session_idle_timeout > 0.0 else "выкл.",
 	])
 	set_process(true)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_socket.poll()
 	while _socket.get_available_packet_count() > 0:
 		var peer_id := _socket.get_packet_peer()
@@ -45,6 +50,7 @@ func _process(_delta: float) -> void:
 		if packet.is_empty() or packet[0] != 0x7b:
 			continue
 		_handle_packet(peer_id, packet.get_string_from_utf8())
+	_cleanup_idle_sessions(delta)
 
 
 func _read_port() -> int:
@@ -52,6 +58,49 @@ func _read_port() -> int:
 		if arg.begins_with("--port="):
 			return clampi(int(arg.get_slice("=", 1)), 1, 65535)
 	return DEFAULT_PORT
+
+
+func _read_session_idle_timeout() -> float:
+	var raw := OS.get_environment("SESSION_IDLE_TIMEOUT").strip_edges()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--session-idle-timeout="):
+			raw = arg.get_slice("=", 1).strip_edges()
+	if raw.is_empty():
+		return DEFAULT_SESSION_IDLE_TIMEOUT
+	if not raw.is_valid_float():
+		push_warning("Сервер: некорректный SESSION_IDLE_TIMEOUT=%s, использую %.0f с" % [
+			raw, DEFAULT_SESSION_IDLE_TIMEOUT,
+		])
+		return DEFAULT_SESSION_IDLE_TIMEOUT
+	var value := raw.to_float()
+	if value <= 0.0:
+		return 0.0
+	return maxf(value, 1.0)
+
+
+## Закрывает сессии, в которых не осталось ни одного клиента.
+func _cleanup_idle_sessions(delta: float) -> void:
+	if _session_idle_timeout <= 0.0:
+		return
+	var to_close: Array[String] = []
+	for channel in _sessions.keys():
+		var session: ChannelSession = _sessions[channel]
+		if session == null:
+			continue
+		if session.has_clients():
+			_empty_since.erase(channel)
+			continue
+		var idle := float(_empty_since.get(channel, 0.0)) + delta
+		_empty_since[channel] = idle
+		if idle >= _session_idle_timeout:
+			to_close.append(str(channel))
+	for channel in to_close:
+		var session: ChannelSession = _sessions.get(channel)
+		if session != null and not session.has_clients():
+			print("SERVER: сессия #%s закрыта по простою (%.0f с)" % [
+				channel, _session_idle_timeout,
+			])
+			session.force_close()
 
 
 func _on_peer_connected(peer_id: int) -> void:
@@ -119,6 +168,7 @@ func _handle_hello(peer_id: int, message: Dictionary) -> void:
 			old_session.remove_client(peer_id)
 	_clients[peer_id] = channel
 	session.add_client(peer_id)
+	_empty_since.erase(channel)
 	_send(peer_id, session.build_state())
 	print("SERVER: клиент %d вошёл в #%s" % [peer_id, channel])
 
@@ -176,6 +226,7 @@ func _on_session_closed(session: ChannelSession) -> void:
 	_broadcast(session, {"t": "closed"})
 	var channel := session.channel
 	_sessions.erase(channel)
+	_empty_since.erase(channel)
 	for peer_id in _clients.keys():
 		if str(_clients[peer_id]) == channel:
 			_clients.erase(peer_id)

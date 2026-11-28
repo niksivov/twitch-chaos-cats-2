@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="BoosterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="BoosterData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/booster_data.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/boosters/revolver_cylinder.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
 id = "revolver_cylinder"
 display_name = "Барабан револьвера"
 description = "0% или 35%"
-icon = ExtResource("2_icon")
+icon_path = "res://assets/boosters/revolver_cylinder.png"
 price = 6
 bonus_percent = 35
 chance_bonus = true

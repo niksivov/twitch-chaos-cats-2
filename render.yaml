@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: twitch-chaos-cats-2
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: SESSION_IDLE_TIMEOUT
+        value: "600"

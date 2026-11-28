@@ -15,7 +15,6 @@ const MIN_TURN_SECONDS := 5
 const MAX_TURN_SECONDS := 600
 const MIN_SHOP_SIZE := 1
 const MAX_SHOP_SIZE := 8
-const DEFAULT_AVATAR: Texture2D = preload("res://assets/avatars/default_avatar.png")
 
 ## Паузы сервера под анимации клиента.
 const ROUND_START_WAIT := 2.9
@@ -51,6 +50,7 @@ var _timer_left := 0
 var _pending_command: Dictionary = {}
 var _awaiting_command := false
 var _game_generation := 0
+var _placeholder_avatar: Texture2D = null
 
 
 func _ready() -> void:
@@ -68,6 +68,10 @@ func add_client(peer_id: int) -> void:
 
 func remove_client(peer_id: int) -> void:
 	clients.erase(peer_id)
+
+
+func has_clients() -> bool:
+	return not clients.is_empty()
 
 
 # --- Лобби и настройки -------------------------------------------------------
@@ -119,6 +123,17 @@ func close() -> void:
 		return
 	if phase != "lobby" and phase != "endgame":
 		return
+	_close_now()
+
+
+## Принудительное закрытие для автоочистки: работает и во время матча.
+func force_close() -> void:
+	if phase == "closed":
+		return
+	_close_now()
+
+
+func _close_now() -> void:
 	_game_generation += 1
 	phase = "closed"
 	_awaiting_command = false
@@ -306,17 +321,26 @@ func _add_player(login: String, display_name: String, user_id: String) -> void:
 	player.twitch_login = login.strip_edges().to_lower()
 	player.nickname = nickname
 	# Аватар выдаётся по порядку подключения: 1-й — avatar_1, 2-й — avatar_2 и т.д.
+	# Сервер не рендерит аватары: клиент сам загрузит нужную текстуру по номеру.
 	var avatar_index := players.size() + 1
 	player.avatar_index = avatar_index
-	player.avatar = PlayerAvatars.get_avatar(avatar_index - 1)
-	if player.avatar == null:
-		player.avatar = DEFAULT_AVATAR
+	player.avatar = _get_placeholder_avatar()
 	players.append(player)
 	var player_id := "p%d" % _next_player_number
 	_next_player_number += 1
 	_player_ids[player] = player_id
 	print("SESSION #%s: %s вошёл в лобби (%d/%d)" % [channel, nickname, players.size(), max_players])
 	state_changed.emit()
+
+
+## Серверу не нужны настоящие текстуры аватаров: в состояние отправляется
+## только флаг наличия аватара и avatar_index, а клиент загружает текстуру сам.
+func _get_placeholder_avatar() -> Texture2D:
+	if _placeholder_avatar == null:
+		var placeholder := PlaceholderTexture2D.new()
+		placeholder.size = Vector2i(1, 1)
+		_placeholder_avatar = placeholder
+	return _placeholder_avatar
 
 
 func _is_streamer(login: String) -> bool:
